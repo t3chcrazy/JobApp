@@ -48,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
     _animationController.forward();
     _successController = AnimationController(
       vsync: this,
-      duration: Duration(seconds: 2, microseconds: 500)
+      duration: Duration(seconds: 1)
     );
     _successController.addListener(() {
       if (_successController.value == 1.0) {
@@ -59,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
     _successValue = Tween(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _successController,
-        curve: Curves.easeInOutCubic,
+        curve: Curves.fastLinearToSlowEaseIn,
       )
     );
   }
@@ -80,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
       body: BlocListener<LoginBloc, LoginState>(
         listener: (context, state) {
           if (state is LoggedIn) {
-            Navigator.of(context).pushNamed("/home");
+            Navigator.of(context).pushNamedAndRemoveUntil("/home", (route) => false);
           }
         },
         child: Stack(

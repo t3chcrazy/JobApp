@@ -115,6 +115,7 @@ class _JobDescScreenState extends State<JobDescScreen> {
                           onPageChanged: (value) => setState(() {
                             tabIndex = value;
                           }),
+                          physics: NeverScrollableScrollPhysics(),
                           children: [
                             Overview(),
                             Responsibilities(),

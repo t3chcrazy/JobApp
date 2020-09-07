@@ -5,6 +5,7 @@ class Responsibilities extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text("Lorem ipsum"),
         SizedBox(height: 20),

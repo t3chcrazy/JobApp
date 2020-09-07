@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import '../../models/Tag.dart';
@@ -8,7 +9,7 @@ part 'skills_event.dart';
 part 'skills_state.dart';
 
 class SkillsBloc extends Bloc<SkillsEvent, SkillsState> {
-  SkillsBloc() : super(SkillsInitial(<Tag>[]));
+  SkillsBloc() : super(SkillsInitial(<Tag>[Tag(tagName: "React", tagColor: Colors.blue)]));
 
   @override
   Stream<SkillsState> mapEventToState(

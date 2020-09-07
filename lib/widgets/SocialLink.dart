@@ -32,7 +32,8 @@ class SocialLink extends StatelessWidget {
               backgroundColor: Color(0xFF00cec9),
               child: Text(socialName[0]),
             ),
-            Text(socialName[0]),
+            SizedBox(width: 20),
+            Text(socialName),
             Spacer(
               flex: 1,
             ),
