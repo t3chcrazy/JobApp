@@ -2,12 +2,15 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import '../models/PreviousJob.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/previous/previous_bloc.dart';
 
 class PreviousJobCard extends StatefulWidget {
 
   final PreviousJob pJob;
+  final bool isEditing;
 
-  PreviousJobCard({this.pJob});
+  PreviousJobCard({this.pJob, this.isEditing = false});
 
   @override
   _PreviousJobCardState createState() => _PreviousJobCardState();
@@ -77,6 +80,11 @@ class _PreviousJobCardState extends State<PreviousJobCard> with SingleTickerProv
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(child: Text(previousJob.job.jobTitle, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
+                        widget.isEditing?
+                        GestureDetector(
+                          child: Icon(Icons.delete),
+                          onTap: () => BlocProvider.of<PreviousBloc>(context).add(PreviousDeleted(prevJobDeleted: previousJob))
+                        ):
                         Transform(
                           origin: Offset(12, 12),
                           transform: Matrix4.rotationZ(((_height.value-100.0)/100)*pi),

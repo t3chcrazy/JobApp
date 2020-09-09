@@ -8,10 +8,11 @@ class Job {
   final Company jobCompany;
   final int jobSalary;
   final List<Tag> jobTags;
-  final bool jobIsSaved;
+  bool jobIsSaved;
   final JobType jobType;
   final DateTime jobDatePosted;
+  bool jobIsApplied;
 
-  const Job({this.jobTitle, this.jobCompany, this.jobSalary, this.jobTags, this.jobIsSaved, this.jobType, this.jobDatePosted});
+  Job({this.jobTitle, this.jobCompany, this.jobSalary, this.jobTags, this.jobIsSaved = false, this.jobType, this.jobDatePosted, this.jobIsApplied = false});
 
 }

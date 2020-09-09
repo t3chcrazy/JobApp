@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../widgets/JobTile.dart';
-import '../utils/JobList.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/login/login_bloc.dart';
+import '../bloc/jobs/jobs_bloc.dart';
 
 enum SortFactor {Distance, DatePosted, Name}
 
@@ -109,11 +109,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             ),
             ListTile(
               title: Text('Saved Jobs'),
-              onTap: () {},
+              onTap: () => Navigator.of(context).pushNamed("/saved"),
             ),
             ListTile(
               title: Text("Applied Jobs"),
-              onTap: () {}
+              onTap: () => Navigator.of(context).pushNamed("/applied")
             ),
             ListTile(
               title: Text("Logout"),
@@ -240,12 +240,18 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     ),
                   ),
                   SizedBox(height: 20),
-                  // Expanded(
-                  //   child: ListView.builder(
-                      
-                  //   ),
-                  // )
-                  JobTile(job: jobList[0],)
+                  Expanded(
+                    child: BlocBuilder<JobsBloc, JobsState>(
+                      builder: (context, state) {
+                        final jobLists = state.jobs;
+                        return ListView.separated(
+                          itemBuilder: (context, index) => JobTile(job: jobLists[index]), 
+                          separatorBuilder: (_, __) => SizedBox(height: 5), 
+                          itemCount: jobLists.length
+                        );
+                      },
+                    )
+                  ),
                 ],
               ),
             ),

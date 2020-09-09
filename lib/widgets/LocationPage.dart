@@ -12,11 +12,14 @@ class LocationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+    final lat = jobLocation.latitude;
+    final lng = jobLocation.longitude;
+
     final centerLocation = Marker(
       width: 10,
       height: 10,
       builder: (context) => Icon(Icons.location_on, color: Colors.green),
-      point: LatLng(jobLocation.latitude, jobLocation.longitude)
+      point: LatLng(lat, lng)
     );
 
     return Column(
@@ -26,8 +29,8 @@ class LocationPage extends StatelessWidget {
         Flexible(
           child: FlutterMap(
             options: MapOptions(
-              center: LatLng(51.5, -0.09),
-              zoom: 1.0,
+              center: LatLng(lat, lng),
+              zoom: 20,
             ),
             layers: [
               TileLayerOptions(

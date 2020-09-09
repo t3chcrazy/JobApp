@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:itjobs/bloc/previous/previous_bloc.dart';
+import 'package:itjobs/bloc/skills/skills_bloc.dart';
+import 'package:itjobs/widgets/ProfileSection.dart';
 import '../widgets/ProfileTab.dart';
 import '../widgets/SkillTag.dart';
 import '../widgets/PreviousJob.dart';
@@ -64,32 +68,16 @@ class ProfileScreen extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 20),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text("Skills", style: sectionTitle),
-                        IconButton(
-                          icon: Icon(Icons.edit),
-                          onPressed: () {},
-                        )
-                      ],
-                    )
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 16),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: user.tags.map((tag) => SkillTag(skillTag: tag,)).toList()
+                  BlocBuilder<SkillsBloc, SkillsState>(
+                    builder: (context, state) => ProfileSection(
+                      title: "Skills",
+                      sectionItems: state.skillTags,
                     ),
                   ),
-                  ProfileSectionTitle(title: "Previous Jobs"),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      children: user.jobHistory.map((pJob) => PreviousJobCard(pJob: pJob,)).toList(),
+                  BlocBuilder<PreviousBloc, PreviousState>(
+                    builder: (context, state) => ProfileSection(
+                      title: "Previous Jobs",
+                      sectionItems: state.prevJobs,
                     ),
                   ),
                   ProfileSectionTitle(title: "Social Links"),

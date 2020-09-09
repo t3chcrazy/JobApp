@@ -4,6 +4,8 @@ import '../models/Job.dart';
 import '../widgets/Overview.dart';
 import '../widgets/Responsibilities.dart';
 import '../widgets/LocationPage.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/jobs/jobs_bloc.dart';
 
 class JobDescScreen extends StatefulWidget {
 
@@ -22,6 +24,7 @@ class JobDescScreen extends StatefulWidget {
 class _JobDescScreenState extends State<JobDescScreen> {
 
   final double borderRadius = 30.0;
+  final double modalWidth = 200;
   final double topFactor = 0.35;
   final List<String> sectionTitles = [
     "Overview",
@@ -29,7 +32,20 @@ class _JobDescScreenState extends State<JobDescScreen> {
     "Location"
   ];
   int tabIndex = 0;
+  bool isVisible = false;
   final PageController _pageController = PageController(initialPage: 0);
+
+  void _handleApplyButton(BuildContext ctx) {
+    setState(() {
+      isVisible = true;
+    });
+    //BlocProvider.of<JobsBloc>(ctx).add(JobToggleApplied(widget.job));
+    Future.delayed(Duration(seconds: 2), () {
+      setState(() {
+        isVisible = false;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,20 +135,42 @@ class _JobDescScreenState extends State<JobDescScreen> {
                           children: [
                             Overview(),
                             Responsibilities(),
-                            LocationPage()
+                            LocationPage(jobLocation: widget.job.jobCompany.companyLocation,)
                           ],
                         ),
                       ),
-                      RaisedButton(
-                        child: Text("Apply to this job!"),
-                        onPressed: () {},
-                        color: Colors.green,
-
+                      BlocBuilder<JobsBloc, JobsState>(
+                        builder: (context, state) {
+                          final bool isApplied = state.jobs.firstWhere((element) => element.jobTitle == widget.job.jobTitle).jobIsApplied;
+                          return RaisedButton(
+                            child: isApplied? Text("Applied!"): Text("Apply to this job!"),
+                            onPressed: isApplied? () {}: () => _handleApplyButton(context),
+                            disabledColor: Colors.grey,
+                            color: Colors.green,
+                          );
+                        },
                       ),
                       SizedBox(height: 10),
                     ],
                   )
                 )
+              ),
+            ),
+            AnimatedPositioned(
+              bottom: isVisible? 50: -100,
+              duration: Duration(milliseconds: 400),
+              curve: Curves.fastLinearToSlowEaseIn,
+              width: modalWidth,
+              left: MediaQuery.of(context).size.width/2-modalWidth/2,
+              child: Container(
+                width: modalWidth,
+                padding: const EdgeInsets.all(15),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: Colors.green,
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Text("Applied to job!", style: TextStyle(color: Colors.white)),
               ),
             )
           ],

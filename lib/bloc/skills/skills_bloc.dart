@@ -17,12 +17,13 @@ class SkillsBloc extends Bloc<SkillsEvent, SkillsState> {
   ) async* {
     if (event is SkillDeleted) {
       final deletedSkill = event.skillToDelete;
-      final newSkillList = state.skillTags.map((e) => e.tagName != deletedSkill.tagName);
+      print(deletedSkill);
+      final List<Tag> newSkillList = state.skillTags.where((e) => e.tagName != deletedSkill.tagName).toList();
       yield SkillsInitial(newSkillList);
     }
     else if (event is SkillsAdded) {
       final newSkill = event.skillToAdd;
-      final newSkillList = state.skillTags.sublist(0);
+      final List<Tag> newSkillList = state.skillTags.sublist(0);
       newSkillList.add(newSkill);
       yield SkillsInitial(newSkillList);
     }
