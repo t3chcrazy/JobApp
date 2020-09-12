@@ -25,8 +25,6 @@ class JobTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    // TODO: Style the job tile
     return InkWell(
       onTap: () => Navigator.of(context).pushNamed("/jobdesc", arguments: job),
       child: Ink(

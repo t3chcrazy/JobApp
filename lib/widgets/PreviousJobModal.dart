@@ -17,6 +17,12 @@ class _PreviousJobModalState extends State<PreviousJobModal> {
   final TextEditingController companyName = TextEditingController();
   final TextEditingController resps = TextEditingController();
 
+  final labelTexts = [
+    "Title",
+    "Company Name",
+    "Mention responsibilities"
+  ];
+
   @override
   void dispose() {
     title.dispose();
@@ -37,18 +43,26 @@ class _PreviousJobModalState extends State<PreviousJobModal> {
 
   @override
   Widget build(BuildContext context) {
+    final List<InputDecoration> textStyles = labelTexts.map((text) => InputDecoration(
+      filled: true,
+      fillColor: Colors.grey[300],
+      labelText: text
+    )).toList();
     return SingleChildScrollView(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom+50),
       child: Column(
         children: [
           TextField(
             controller: title,
+            decoration: textStyles[0]
           ),
           TextField(
             controller: companyName,
+            decoration: textStyles[1]
           ),
           TextField(
-            controller: resps, 
+            controller: resps,
+            decoration: textStyles[2],
           ),
           RaisedButton(
             child: Text("Add"),

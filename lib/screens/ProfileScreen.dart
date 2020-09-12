@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:itjobs/bloc/previous/previous_bloc.dart';
-import 'package:itjobs/bloc/skills/skills_bloc.dart';
-import 'package:itjobs/widgets/ProfileSection.dart';
+import '../bloc/previous/previous_bloc.dart';
+import '../bloc/projects/projects_bloc.dart';
+import '../bloc/skills/skills_bloc.dart';
+import '../widgets/ProfileSection.dart';
 import '../widgets/ProfileTab.dart';
-import '../widgets/SkillTag.dart';
-import '../widgets/PreviousJob.dart';
 import '../widgets/ProfileSectionTitle.dart';
 import '../widgets/SocialLink.dart';
 import '../models/User.dart';
@@ -78,6 +77,12 @@ class ProfileScreen extends StatelessWidget {
                     builder: (context, state) => ProfileSection(
                       title: "Previous Jobs",
                       sectionItems: state.prevJobs,
+                    ),
+                  ),
+                  BlocBuilder<ProjectsBloc, ProjectsState>(
+                    builder: (context, state) => ProfileSection(
+                      title: "Projects",
+                      sectionItems: state.projects,
                     ),
                   ),
                   ProfileSectionTitle(title: "Social Links"),

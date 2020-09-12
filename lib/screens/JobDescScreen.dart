@@ -53,7 +53,6 @@ class _JobDescScreenState extends State<JobDescScreen> {
     final currJob = widget.job;
     final location = currJob.jobCompany.companyLocation;
 
-    //TODO: Test job description screen
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
@@ -142,11 +141,14 @@ class _JobDescScreenState extends State<JobDescScreen> {
                       BlocBuilder<JobsBloc, JobsState>(
                         builder: (context, state) {
                           final bool isApplied = state.jobs.firstWhere((element) => element.jobTitle == widget.job.jobTitle).jobIsApplied;
-                          return RaisedButton(
-                            child: isApplied? Text("Applied!"): Text("Apply to this job!"),
-                            onPressed: isApplied? () {}: () => _handleApplyButton(context),
-                            disabledColor: Colors.grey,
-                            color: Colors.green,
+                          return Container(
+                            width: double.infinity,
+                            child: RaisedButton(
+                              child: isApplied? Text("Applied!"): Text("Apply to this job!", style: TextStyle(color: Colors.white)),
+                              onPressed: isApplied? () {}: () => _handleApplyButton(context),
+                              disabledColor: Colors.grey,
+                              color: Colors.green,
+                            ),
                           );
                         },
                       ),

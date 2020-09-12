@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:itjobs/widgets/Project.dart';
 import '../widgets/PreviousJob.dart';
 import '../widgets/SkillTag.dart';
+import '../widgets/ProjectModal.dart';
 import 'SkillModal.dart';
 import 'PreviousJobModal.dart';
 
@@ -39,9 +41,37 @@ class _ProfileSectionState extends State<ProfileSection> {
     );
   }
 
+  void _showProjectModal(BuildContext ctx) {
+    showModalBottomSheet(
+      context: ctx, 
+      builder: (context) => ProjectModal(),
+    );
+  }
+
+  Widget mapTitleToList() {
+    switch (widget.title) {
+      case "Skills":
+        return Row(
+          children: widget.sectionItems.map((e) => SkillTag(skillTag: e, isEditing: isEditing,)).toList(),
+        );
+      case "Projects":
+        return Column(
+          children: widget.sectionItems.map((e) => ProjectCard(project: e, isEditing: isEditing,)).toList()
+        );
+      default:
+        return Column(
+          children: widget.sectionItems.map((e) => PreviousJobCard(isEditing: isEditing, pJob: e,)).toList(),
+        );
+    }
+  }
+
   void _showAptModal(BuildContext ctx) {
-    if (widget.title == "Skills") {
+    final title = widget.title;
+    if (title == "Skills") {
       _showSkillModal(ctx);
+    }
+    else if (title == "Projects") {
+      _showProjectModal(ctx);
     }
     else {
       _showPreviousJobModal(ctx);
@@ -50,7 +80,6 @@ class _ProfileSectionState extends State<ProfileSection> {
 
   @override
   Widget build(BuildContext context) {
-    final isSkills = widget.title == "Skills";
     return Padding(
       padding: const EdgeInsets.only(left: 16),
       child: Column(
@@ -74,13 +103,7 @@ class _ProfileSectionState extends State<ProfileSection> {
               )
             ],
           ),
-          isSkills?
-          Row(
-            children: widget.sectionItems.map((e) => SkillTag(skillTag: e, isEditing: isEditing,)).toList(),
-          ):
-          Column(
-            children: widget.sectionItems.map((e) => PreviousJobCard(isEditing: isEditing, pJob: e,)).toList(),
-          )
+          mapTitleToList()
         ],
       ),
     );

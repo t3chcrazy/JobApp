@@ -116,11 +116,35 @@ List<Job> jobList = [
     jobTags: tagCombinations[3]
   ),
   Job(
+    jobTitle: "Python Intern",
+    jobCompany: companyList[companyList.length-2],
+    jobDatePosted: DateTime.now().subtract(Duration(days: 50)),
+    jobSalary: 50000,
+    jobType: JobType.Internship,
+    jobTags: tagCombinations[4]
+  ),
+  Job(
     jobTitle: "MERN Stack Developer",
     jobCompany: companyList[companyList.length-1],
-    jobDatePosted: DateTime.now().subtract(Duration(days: 50)),
+    jobDatePosted: DateTime.now().subtract(Duration(days: 17)),
     jobSalary: 200000,
     jobType: JobType.Fulltime,
+    jobTags: tagCombinations[0]
+  ),
+  Job(
+    jobTitle: "Laravel Developer",
+    jobCompany: companyList[companyList.length-1],
+    jobDatePosted: DateTime.now().subtract(Duration(days: 21)),
+    jobSalary: 90000,
+    jobType: JobType.Contract,
+    jobTags: tagCombinations[0]
+  ),
+  Job(
+    jobTitle: "MEAN Stack Developer",
+    jobCompany: companyList[companyList.length-1],
+    jobDatePosted: DateTime.now().subtract(Duration(days: 4)),
+    jobSalary: 150000,
+    jobType: JobType.Contract,
     jobTags: tagCombinations[0]
   )
 ];

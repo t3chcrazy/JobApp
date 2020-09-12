@@ -19,7 +19,7 @@ class JobsBloc extends Bloc<JobsEvent, JobsState> {
     final newList = state.jobs.sublist(0);
     final Job concernedJob = newList.firstWhere((element) => element.jobTitle == jobTitle);
     if (event is JobToggleSaved) {
-      concernedJob.jobIsSaved = !concernedJob.jobIsApplied;
+      concernedJob.jobIsSaved = !concernedJob.jobIsSaved;
     }
     else if (event is JobToggleApplied) {
       concernedJob.jobIsApplied = !concernedJob.jobIsApplied;

@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
-import '../widgets/JobTile.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../bloc/login/login_bloc.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:latlong/latlong.dart';
+import '../widgets/JobTile.dart';
+import '../widgets/HomeFilter.dart';
 import '../bloc/jobs/jobs_bloc.dart';
+import '../models/Location.dart';
+import '../models/Job.dart';
+import '../models/Tag.dart';
+import '../widgets/Drawer.dart';
 
 enum SortFactor {Distance, DatePosted, Name}
 
@@ -23,19 +29,32 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     "Search by skills",
     "Introduce you to the best companies"
   ];
+  final TextEditingController _filter = TextEditingController();
 
   AnimationController _controller;
   Animation<double> _slide1;
   Animation<double> _slide2;
   Animation<double> _slide3;
   SortFactor sortFactor;
+  Position currPosition;
+  FocusNode _filterNode;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  SearchTitle searchTitle;
+  Tag favTag;
+  JobType jobType;
+  String _filterValue = "";
 
   @override
   void initState() {
     super.initState();
+    searchTitle = SearchTitle.JobName;
     sortFactor = SortFactor.DatePosted;
+    _filterNode = FocusNode();
+    jobType = null;
+    favTag = null;
+
     _controller = AnimationController(
       vsync: this,
       duration: Duration(seconds: 6)
@@ -68,12 +87,20 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       )
     );
     _controller.repeat();
+    getPosition()
+    .then((value) {
+      currPosition = value;
+    });
   }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  Future<Position> getPosition() async {
+    return await getCurrentPosition();
   }
 
   double mapValueToPosition(double val) {
@@ -86,6 +113,88 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return (4*val-3)*slideSize;
   }
 
+  void _handleSelecedFilter(SearchTitle selectedSearchFilter) {
+    if (searchTitle == selectedSearchFilter) {
+      return;
+    }
+    setState(() {
+      searchTitle = selectedSearchFilter;
+    });
+    Navigator.of(context).pop();
+  }
+
+  void _handleJobType(JobType type) {
+    setState(() {
+      jobType = jobType == type? null: type;
+    });
+    Navigator.of(context).pop();
+  }
+
+  void _handleTagSelect(Tag tag) {
+    setState(() {
+      favTag = tag;
+    });
+  }
+
+  void _showFilterModal() {
+    showModalBottomSheet(
+      context: context, 
+      builder: (context) => HomeFilter(
+        activeTitle: searchTitle,
+        activeType: jobType,
+        handleSelectedFilter: _handleSelecedFilter,
+        handleJobType: _handleJobType,
+        handleTag: _handleTagSelect,
+      )
+    );
+  }
+
+  void _handleFieldChange(String val) {
+    setState(() {
+      _filterValue = val;
+    });
+  }
+
+  void _applyCorrectFilter(List<Job> listJobs) {
+    switch (searchTitle) {
+      case SearchTitle.JobName:
+        listJobs.retainWhere((element) => element.jobTitle.toLowerCase().startsWith(_filterValue.toLowerCase()));
+        return;
+      case SearchTitle.CompanyName:
+        listJobs.retainWhere((element) => element.jobCompany.companyName.toLowerCase().startsWith(_filterValue.toLowerCase()));
+        return;
+      default:
+        listJobs.retainWhere((element) => element.jobTags.any((element) => element.tagName.toLowerCase().startsWith(_filterValue.toLowerCase())));
+        return;
+    }
+  }
+
+  LatLng _convertToLatLng(double lat, double lng) => LatLng(lat, lng);
+
+  int _compareDistance(Location a, Location b) {
+    final userLocation = _convertToLatLng(currPosition.latitude, currPosition.longitude);
+    final locationA = _convertToLatLng(a.latitude, a.longitude);
+    final locationB = _convertToLatLng(b.latitude, b.longitude);
+    final Distance distance = Distance();
+    final distanceA = distance.as(LengthUnit.Kilometer, locationA, userLocation);
+    final distanceB = distance.as(LengthUnit.Kilometer, locationB, userLocation);
+    return (distanceA-distanceB).round();
+  }
+
+  void _sortByCorrectOrder(List<Job> listJobs) {
+    switch (sortFactor) {
+      case SortFactor.DatePosted:
+        listJobs.sort((a, b) => a.jobDatePosted.compareTo(b.jobDatePosted));
+        return;
+      case SortFactor.Distance:
+        listJobs.sort((a, b) => _compareDistance(a.jobCompany.companyLocation, b.jobCompany.companyLocation));
+        return;
+      default:
+        listJobs.sort((a, b) => a.jobTitle.compareTo(b.jobTitle));
+        return;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size dimensions = MediaQuery.of(context).size;
@@ -93,35 +202,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
     return Scaffold(
       key: _scaffoldKey,
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              child: Text('ITJobs menu'),
-              decoration: BoxDecoration(
-                color: Colors.green,
-              ),
-            ),
-            ListTile(
-              title: Text('Profile'),
-              onTap: () => Navigator.of(context).pushNamed("/profile"),
-            ),
-            ListTile(
-              title: Text('Saved Jobs'),
-              onTap: () => Navigator.of(context).pushNamed("/saved"),
-            ),
-            ListTile(
-              title: Text("Applied Jobs"),
-              onTap: () => Navigator.of(context).pushNamed("/applied")
-            ),
-            ListTile(
-              title: Text("Logout"),
-              onTap: () => BlocProvider.of<LoginBloc>(context).add(LogoutInitiate()),
-            )
-          ],
-        ),
-      ),
+      drawer: MainDrawer(),
       body: Stack(
         children: [
           Positioned(
@@ -189,7 +270,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   ),
                   GestureDetector(
                     child: Icon(Icons.person, color: Colors.white),
-                    onTap: () => print("Profile was pressed"),
+                    onTap: () => Navigator.of(context).pushNamed("/profile"),
                   )
                 ],
               ),
@@ -222,6 +303,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       children: [
                         Expanded(
                           child: TextField(
+                            controller: _filter,
+                            autofocus: false,
+                            focusNode: _filterNode,
+                            onChanged: _handleFieldChange,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
@@ -233,7 +318,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         ),
                         SizedBox(width: 10),
                         GestureDetector(
-                          onTap: () {},
+                          onTap: _showFilterModal,
                           child: Icon(Icons.filter)
                         )
                       ],
@@ -243,10 +328,18 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   Expanded(
                     child: BlocBuilder<JobsBloc, JobsState>(
                       builder: (context, state) {
-                        final jobLists = state.jobs;
+                        final jobLists = state.jobs.sublist(0);
+                        if (jobType != null) {
+                          jobLists.retainWhere((element) => element.jobType == jobType);
+                        }
+                        if (favTag != null) {
+                          jobLists.where((element) => element.jobTags.contains(favTag));
+                        }
+                        _applyCorrectFilter(jobLists);
+                        _sortByCorrectOrder(jobLists);
                         return ListView.separated(
                           itemBuilder: (context, index) => JobTile(job: jobLists[index]), 
-                          separatorBuilder: (_, __) => SizedBox(height: 5), 
+                          separatorBuilder: (_, __) => SizedBox(height: 15), 
                           itemCount: jobLists.length
                         );
                       },
@@ -259,26 +352,31 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      floatingActionButton: FloatingActionButton(
-        child: PopupMenuButton<SortFactor>(
-          child: Icon(Icons.settings_input_composite),
-          onSelected: (value) => setState(() {}),
-          itemBuilder: (context) => <PopupMenuItem<SortFactor>>[
-            PopupMenuItem<SortFactor>(
-              value: SortFactor.Name,
-              child: Text("By Name")
-            ),
-            PopupMenuItem<SortFactor>(
-              value: SortFactor.DatePosted,
-              child: Text("By Date Posted")
-            ),
-            PopupMenuItem<SortFactor>(
-              value: SortFactor.Distance,
-              child: Text("By Distance from Company HQ")
-            )
-          ],
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 16.0),
+        child: FloatingActionButton(
+          child: PopupMenuButton<SortFactor>(
+            child: Icon(Icons.settings_input_composite),
+            onSelected: (value) => setState(() {
+              sortFactor = value;
+            }),
+            itemBuilder: (context) => <PopupMenuItem<SortFactor>>[
+              PopupMenuItem<SortFactor>(
+                value: SortFactor.Name,
+                child: Text("By Name")
+              ),
+              PopupMenuItem<SortFactor>(
+                value: SortFactor.DatePosted,
+                child: Text("By Date Posted")
+              ),
+              PopupMenuItem<SortFactor>(
+                value: SortFactor.Distance,
+                child: Text("By Distance from Company HQ")
+              )
+            ],
+          ),
+          onPressed: () => print("Filter button was pressed"),
         ),
-        onPressed: () => print("Filter button was pressed"),
       ),
     );
   }
